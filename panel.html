@@ -16,7 +16,7 @@
         <div class="title">{{ u.url }}</div>
         <div class="group">
           <div class="list" v-for="item in u.collection">
-            <p @click="toggleTable($event)" class="collapse">{{ item.title }}</p>
+            <p @click="toggleTable($event)" class="collapse" :class="{'exception': item.type == 'exception'}">{{ item.title }}</p>
             <table style="display:none">
               <tr v-for="row in item.table">
                 <td v-for="col in row">
