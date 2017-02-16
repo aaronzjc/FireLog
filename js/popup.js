@@ -1,4 +1,5 @@
 var storage = chrome.storage.local;
+
 var vm = new Vue({
 	el: "#app",
 	data: {
@@ -6,6 +7,7 @@ var vm = new Vue({
 		background:null
 	},
 	created: function () {
+		// 初始化时，更新状态
 		var _self = this;
 		this.background = chrome.extension.getBackgroundPage();
 		storage.get('active', function(state) {

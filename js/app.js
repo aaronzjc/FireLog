@@ -2,6 +2,7 @@ function showRequest(request) {
     document.write(JSON.stringify(request));
 }
 
+// 响应头数据解析
 var ConsoleLog = {
     exception: function(meta, body) {
         return {
@@ -73,6 +74,13 @@ var vm = new Vue({
         bottom: 10 // 弹层位置
     },
     created: function() {
+        // 打开控制台，更新调试状态
+        var _self = this;
+        chrome.storage.local.get('active', function(state) {
+            _self.state = state.active?true:false;
+            _self.background.update(_self.state);
+        });
+
         bus.$on('close-modal', this.closeModal);
     },
     methods: {
@@ -142,9 +150,8 @@ var vm = new Vue({
     }
 });
 
-// 添加请求到面板
-vm.$on('add-request',
-function(data) {
+// 请求来了，添加至面板展示
+vm.$on('add-request', function(data) {
     // alert('add-request');
     var item = [];
     var seeds = data['data'];
@@ -182,13 +189,12 @@ function(data) {
     this.requests.push(map);
 });
 
-vm.$on('tab-update',
-function(data) {
+vm.$on('tab-update',function(data) {
     this.requests = [];
-
 });
-
+    
 $(function() {
+    // 设置弹层的可拖拽属性
     var draggableDiv = $('.modal');
     draggableDiv.draggable({
         handle: $('.header', draggableDiv)

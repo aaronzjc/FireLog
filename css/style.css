@@ -12,20 +12,25 @@ html,body {
   width:100%;
   border-bottom: 1px solid #ccc;
   vertical-align: middle;
-  padding: 3px 0px 0px 5px;
+  padding: 5px 0px 0px 5px;
   box-shadow: 2px 2px 2px #F5F5F5;
   box-sizing: border-box;
 }
 .toolbar .tool {
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   display: inline-block;
+}
+.toolbar .tool:hover {
+  cursor: pointer;
 }
 .toolbar .tool.trash {
   background: url("../images/trash.png") no-repeat center center;
+  background-size: 100% 100%;
 }
 .toolbar .tool.refresh {
   background: url("../images/refresh.png") no-repeat center center;
+  background-size: 100% 100%;
 }
 .card{
   width: 95%;
