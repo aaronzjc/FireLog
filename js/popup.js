@@ -11,6 +11,7 @@ var vm = new Vue({
 		var _self = this;
 		this.background = chrome.extension.getBackgroundPage();
 		storage.get('active', function(state) {
+			console.log('debug created');
 			_self.state = state.active?true:false;
 			_self.background.update(_self.state);
 		});

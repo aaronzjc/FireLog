@@ -8,11 +8,18 @@ var ConsoleLog = {
         return {
             "title": body['Message'],
             'type': 'exception',
-            "table": [[
-                {'type': 'number', 'val': meta['Line'], 'omit': false}, 
-                {'type': 'string', 'val': meta['File'], 'omit': false},
-                {'type': 'object', 'val': body['Trace'], 'omit': true}
-            ]]
+            "table": [
+                [
+                    {'type': 'string', 'val': 'Line', 'omit': false}, 
+                    {'type': 'string', 'val': 'File', 'omit': false},
+                    {'type': 'string', 'val': 'Trace', 'omit': false}
+                ],
+                [
+                    {'type': 'number', 'val': meta['Line'], 'omit': false}, 
+                    {'type': 'string', 'val': meta['File'], 'omit': false},
+                    {'type': 'object', 'val': body['Trace'], 'omit': true}
+                ]
+            ]
         };
         
     },
@@ -50,7 +57,7 @@ Vue components
 */
 var Modal = Vue.extend({
     template: '#modal',
-    props: ['data', 'show', 'r', 'b', 'json'],
+    props: ['data', 'show', 'json'],
     methods: {
         closeModal: function() {
             bus.$emit('close-modal');
@@ -61,26 +68,17 @@ var Modal = Vue.extend({
 var vm = new Vue({
     el: '#app',
     data: {
+        background: null,
         requests: [],
+        debug: '',
 
         jsonHTML: '',
         // 弹层的HTML内容
         isJson: false,
         // 弹层展示的数据是否是JSON
-        modalHide: true,
-        // 是否隐藏弹层
-        right: 10,
-        // 弹层位置。起初是想，初始化一个位置，后来发现算了。
-        bottom: 10 // 弹层位置
+        modalHide: true, // 是否隐藏弹层
     },
     created: function() {
-        // 打开控制台，更新调试状态
-        var _self = this;
-        chrome.storage.local.get('active', function(state) {
-            _self.state = state.active?true:false;
-            _self.background.update(_self.state);
-        });
-
         bus.$on('close-modal', this.closeModal);
     },
     methods: {
@@ -152,9 +150,26 @@ var vm = new Vue({
 
 // 请求来了，添加至面板展示
 vm.$on('add-request', function(data) {
-    // alert('add-request');
     var item = [];
     var seeds = data['data'];
+    
+    // 如果连接断开了，这时候页面刷新的请求是收不到的。只能将
+    if (!data['connect']) {
+        this.requests = [
+            {
+                "url": "https://github.com/aaronzjc",
+                "collection": [
+                    {
+                        "title": 'Oops, Your devtools connection to background has gone.Reopen console to continue . ',
+                        'type': 'exception',
+                        "table": []
+                    }
+                ]
+            }
+        ];
+        return false;
+    }
+
     // 排序
     seeds.sort(function(a, b) {
         return (a.index > b.index) ? 1 : -1;
@@ -186,17 +201,64 @@ vm.$on('add-request', function(data) {
             map['collection'].push(formatData);
         }
     }
-    this.requests.push(map);
+    this.debug = this.debug + '请求处理完了';
+    if (map) {
+        this.debug = this.debug + '有数据';
+    }
+    this.$nextTick(function(){
+        this.requests.push(map);
+    });
 });
 
 vm.$on('tab-update',function(data) {
+    this.debug += 'tab 更新了';
     this.requests = [];
 });
-    
+vm.$on('request-debug',function(data) {
+    this.debug += JSON.stringify(data);
+});
+vm.$on('disconnect',function(){
+    this.requests = [
+        {
+            "title": 'Console Connect failed.Please reopen console to continue..',
+            'type': 'exception',
+            "table": []
+        }
+    ];
+});
+
 $(function() {
-    // 设置弹层的可拖拽属性
-    var draggableDiv = $('.modal');
-    draggableDiv.draggable({
-        handle: $('.header', draggableDiv)
+    var moveX = 0;
+    var moveY = 0;
+
+    var boxX = 0;
+    var boxY = 0;
+    // 设置弹层的拖动
+    $('.modal .header').mousedown(function(event){
+        boxX = parseInt($(".modal").position().left);
+        boxY = parseInt($(".modal").position().top);
+
+        var mouseOrignX = parseInt(event.clientX);
+        var mouseOriginY = parseInt(event.clientY);
+
+        console.log(boxX, boxY);
+        console.log(mouseOrignX, mouseOriginY);
+
+        function moveHandle(e) {
+            moveX = e.clientX - mouseOrignX;
+            moveY = e.clientY - mouseOriginY;
+
+            $('.modal').css({
+                'left': (boxX + moveX) + 'px',
+                'top': (boxY + moveY) + 'px',
+                'right': 'auto',
+                'bottom': 'auto'
+            });
+        }
+
+        $(document).mousemove(moveHandle);
+        $(document).mouseup(function(e){
+            $(document).unbind('mousemove', moveHandle);
+        });
     });
 });

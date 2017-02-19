@@ -8,6 +8,7 @@
   </head>
   <body>
     <div id="app">
+    <!-- <textarea name="" id="" cols="30" rows="10">{{ debug }}</textarea> -->
       <div class="toolbar">
         <div @click="trash" title="清空" class="tool trash"></div>
         <div @click="refresh" title="刷新" class="tool refresh"></div>
@@ -29,15 +30,14 @@
         </div>
       </div>
 
-      <v-modal :data="jsonHTML" :json="isJson" :show="modalHide" :r="right" :b="bottom"></v-modal>
+      <v-modal :data="jsonHTML" :json="isJson" :show="modalHide"></v-modal>
     </div>
 
     <template id="modal">
       <div
       class="modal"
-      :class="{'hide':show}"
-      :style="{right:r+'px', bottom:b+'px'}">
-        <div class="header draggable"><i @click="closeModal"></i></div>
+      :class="{'hide':show}">
+        <div class="header"><i @click="closeModal"></i></div>
         <div class="body">
           <div v-if="json" v-html="data"></div>
           <div v-else>{{ data }}</div>
@@ -46,10 +46,8 @@
     </template>
 
     <script src="js/jquery.min.js" charset="utf-8"></script>
-    <script src="js/jquery-ui.min.js"></script>
     <script src="js/jsonView/jsonView.js" charset="utf-8"></script>
     <script src="js/vue.js" charset="utf-8"></script>
     <script src="js/app.js" charset="utf-8"></script>
-    <script src="js/jsonView/default.js" charset="utf-8"></script>
   </body>
 </html>
