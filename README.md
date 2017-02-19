@@ -9,10 +9,6 @@ FirePHP的原理是，在响应头中加入需要打印的LOG信息，然后在F
 ![intro](./imgs/intro.png)
 ![detail](./imgs/detail.png)
 
-## 已知问题
-
-+ 点击Object查看详情时，无法进行折叠。
-
 ## License
 
 MIT.
