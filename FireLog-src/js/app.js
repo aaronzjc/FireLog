@@ -92,7 +92,6 @@ var vm = new Vue({
         },
         // 更新标签页
         tabUpdate: function() {
-            alert('tab');
             this.debug += 'tab 更新了';
             this.requests = [];
         },
@@ -163,10 +162,10 @@ var vm = new Vue({
                     map['collection'].push(formatData);
                 }
             }
-            this.$nextTick(function(){
-                alert('request');
-                this.requests.push(map);
-            });
+            var _self = this;
+            setTimeout(function() {
+                _self.requests.push(map);
+            }, 200);
         },
         // 连接断开
         disconnect: function() {
