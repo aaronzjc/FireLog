@@ -6,12 +6,13 @@ FirePHP的原理是，在响应头中加入需要打印的LOG信息，然后在F
 
 ## 截图
 
-![main](./demo/main.png)
+![intro](./demo/intro.png)
+![detail](./demo/detail.png)
 
 ## 已知问题
 
-1. 目前对于输出的解析，并不标准。只能解析Table类型的响应。
-2. 点击Object查看详情时，无法进行折叠。
+1. 点击Object查看详情时，无法进行折叠。
+2. Tab更新事件和requestFinish事件的顺序为题会导致有时候展示为空。
 
 ## Licence
 
