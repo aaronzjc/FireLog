@@ -13,6 +13,6 @@ FirePHP的原理是，在响应头中加入需要打印的LOG信息，然后在F
 
 + 点击Object查看详情时，无法进行折叠。
 
-## Licence
+## License
 
 MIT.
