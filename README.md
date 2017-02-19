@@ -6,8 +6,8 @@ FirePHP的原理是，在响应头中加入需要打印的LOG信息，然后在F
 
 ## 截图
 
-![intro](./demo/intro.png)
-![detail](./demo/detail.png)
+![intro](./imgs/intro.png)
+![detail](./imgs/detail.png)
 
 ## 已知问题
 
