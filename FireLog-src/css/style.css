@@ -4,8 +4,6 @@ html,body {
   padding:0;
   margin:0;
 	box-sizing: border-box;
-  height: 
-  1000px;
 }
 *:hover{
   cursor: default;
@@ -13,13 +11,22 @@ html,body {
  ::-webkit-scrollbar-track-piece{background-color:#fff;}
  ::-webkit-scrollbar{width:3px;}
  ::-webkit-scrollbar-thumb{background:#d0d0d0;}
+
+#app {
+  padding-top: 30px;
+}
 .toolbar {
+  background: #fff;
   width:100%;
   border-bottom: 1px solid #ccc;
   vertical-align: middle;
   padding: 5px 0px 0px 5px;
   box-shadow: 2px 2px 2px #F5F5F5;
   box-sizing: border-box;
+  position: fixed;
+  z-index: 999;
+  top:0;
+  left: 0;
 }
 .toolbar .tool {
   width: 15px;
@@ -39,9 +46,12 @@ html,body {
 }
 .card{
   width: 95%;
+  min-height: 120px;
+  background: #f03;
   height: auto;
   margin:5px;
 }
+
 .card .title {
   width: 100%;
   height: auto;

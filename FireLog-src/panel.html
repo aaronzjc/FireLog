@@ -39,13 +39,12 @@
       :class="{'hide':show}">
         <div class="header"><i @click="closeModal"></i></div>
         <div class="body">
-          <div v-if="json" v-html="data"></div>
-          <div v-else>{{ data }}</div>
         </div>
       </div>
     </template>
 
     <script src="js/jquery.min.js" charset="utf-8"></script>
+    <script src="js/jsonView/default.js" charset="utf-8"></script>
     <script src="js/jsonView/jsonView.js" charset="utf-8"></script>
     <script src="js/vue.js" charset="utf-8"></script>
     <script src="js/app.js" charset="utf-8"></script>

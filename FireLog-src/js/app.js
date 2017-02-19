@@ -2,6 +2,17 @@ function showRequest(request) {
     document.write(JSON.stringify(request));
 }
 
+function renderJSON(data) {
+    var json_regex = /^\s*([\[\{].*[\}\]])\s*$/;
+    var is_json = json_regex.test(data);
+    if (is_json) {
+        var jsonFormatter = new JSONFormatter();
+        var jsonHTML = jsonFormatter.jsonToHTML(data, null, 'JSONViewer');
+        return {'isJson':true, 'data':jsonHTML};
+    }
+    return {'isJson':false,'data':data};
+}
+
 // 响应头数据解析
 var ConsoleLog = {
     exception: function(meta, body) {
@@ -225,16 +236,10 @@ var vm = new Vue({
             // TODO: JSON beauty
             this.modalHide = false;
 
-            var json_regex = /^\s*([\[\{].*[\}\]])\s*$/;
-            var is_json = json_regex.test(data);
-            if (is_json) {
-                var jsonFormatter = new JSONFormatter();
-                this.jsonHTML = jsonFormatter.jsonToHTML(data, null, 'JSONViewer');
-                this.isJson = true;
-            } else {
-                this.jsonHTML = data;
-                this.isJson = false;
-            }
+            var render = renderJSON(data);
+            this.isJson = render.isJson;
+            document.querySelector(".modal .body").innerHTML = render.data;
+            prettyJSON();
         },
     },
     components: {
