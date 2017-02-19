@@ -2,7 +2,7 @@ var PHPLog = {
   portState:false,
   panel: null,
   panelWindow: null,
-  vm: null
+  bus: null
 };
 
 // connect background.js
@@ -12,7 +12,7 @@ var port = chrome.runtime.connect({
 PHPLog.portState = true;
 port.onMessage.addListener(function(data){
   if (data.msg == 'tabUpdate') {
-    PHPLog.vm.$emit('tab-update', data);
+    PHPLog.bus.$emit('tab-update', data);
   }
 });
 port.onDisconnect.addListener(function(){
@@ -29,7 +29,7 @@ chrome.devtools.panels.create("FireLog","FontPicker.png","panel.html", function 
   PHPLog.panel = panel;
   PHPLog.panel.onShown.addListener(function(panelWindow){
     PHPLog.panelWindow = panelWindow;
-    PHPLog.vm = panelWindow.vm;
+    PHPLog.bus = panelWindow.bus;
   });
 });
 
@@ -41,29 +41,15 @@ chrome.devtools.network.onRequestFinished.addListener(function(request){
   var responseHeaders = request.response.headers;
   
   // 对于存在firephp的响应才发送
-  var tmp = [];
   var flag = false;
-  // PHPLog.vm.$emit('request-debug', {url: request.request.url, data:responseHeaders}); 
+  // PHPLog.bus.$emit('request-debug', {url: request.request.url, data:responseHeaders}); 
   for(var i in responseHeaders) {
-    if (responseHeaders[i]['name'].indexOf(key) >= 0) {
-      flag = true;
-      var value = responseHeaders[i];
-      var fragment = value['value'].substring(value['value'].indexOf('|') + 1, value['value'].lastIndexOf('|'));
-      var index = parseInt(value['name'].substring(key.length));
-      if (value['value'].indexOf('|') > 0) {
-        var isFrag = false;
-      } else {
-        var isFrag = true;
-      }
-      tmp.push({'index':index, 'val':fragment, 'isFrag': isFrag});
+    if (responseHeaders[i].name.indexOf('X-Wf-Protocol') >= 0) {
+      PHPLog.bus.$emit('add-request', {url: request.request.url, headers: responseHeaders, connect: PHPLog.portState});
+      return true;
     }
   }
-  if (flag) {
-    PHPLog.vm.$emit('request-debug', tmp);
-    PHPLog.vm.$emit('add-request', {url: request.request.url, data:tmp, connect: PHPLog.portState}); 
-  } else {
-    if (PHPLog.portState == false) {
-      PHPLog.vm.$emit('add-request', {connect: false});
-    }
+  if (PHPLog.portState == false) {
+    PHPLog.bus.$emit('add-request', {connect: false});
   }
 });

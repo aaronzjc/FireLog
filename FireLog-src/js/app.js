@@ -80,11 +80,103 @@ var vm = new Vue({
     },
     created: function() {
         bus.$on('close-modal', this.closeModal);
+        bus.$on('tab-update', this.tabUpdate);
+        bus.$on('add-request', this.addRequest);
+        bus.$on('disconnect', this.disconnect);
+        bus.$on('request-debug', this.debug);
     },
     methods: {
         // 清空
         trash: function() {
             this.requests = [];
+        },
+        // 更新标签页
+        tabUpdate: function() {
+            alert('tab');
+            this.debug += 'tab 更新了';
+            this.requests = [];
+        },
+        // 添加请求
+        addRequest: function(data) {
+            // 如果连接断开了，这时候页面刷新的请求是收不到的。只能将
+            if (!data['connect']) {
+                this.requests = [
+                    {
+                        "url": "https://github.com/aaronzjc",
+                        "collection": [
+                            {
+                                "title": 'Oops, Your devtools connection to background has gone.Reopen console to continue . ',
+                                'type': 'exception',
+                                "table": []
+                            }
+                        ]
+                    }
+                ];
+                return false;
+            }
+
+            var key = 'X-Wf-1-1-1-'; // 响应前缀
+
+            // 整合过的完整JSON列表
+            var item = [];
+            var seeds = [];
+            for (var i in data['headers']) {
+                var value = data['headers'][i];
+                var fragment = value['value'].substring(value['value'].indexOf('|') + 1, value['value'].lastIndexOf('|'));
+                var index = parseInt(value['name'].substring(key.length));
+                if (value['value'].indexOf('|') > 0) {
+                    var isFrag = false;
+                } else {
+                    var isFrag = true;
+                }
+                seeds.push({index:index, val:fragment, isFrag: isFrag});
+            }
+
+            // 排序
+            seeds.sort(function(a, b) {
+                return (a.index > b.index) ? 1 : -1;
+            });
+
+            // 数据处理，将header片段拼接成完整的JSON段
+            var json = '';
+            for (var i in seeds) {
+                if (seeds[i]['isFrag']) {
+                    json += seeds[i]['val'];
+                } else {
+                    if (json != '') {
+                        item.push(json);
+                    }
+                    json = seeds[i]['val'];
+                }
+            }
+            if (json != '') {
+                item.push(json);
+            }
+
+            var map = {
+                'url': data['url'],
+                'collection': []
+            };
+            for (var i in item) {
+                var formatData = this.render(item[i]);
+                if (formatData != false) {
+                    map['collection'].push(formatData);
+                }
+            }
+            this.$nextTick(function(){
+                alert('request');
+                this.requests.push(map);
+            });
+        },
+        // 连接断开
+        disconnect: function() {
+            this.requests = [
+                {
+                    "title": 'Console Connect failed.Please reopen console to continue..',
+                    'type': 'exception',
+                    "table": []
+                }
+            ];
         },
         // 刷新当前页面
         refresh: function() {
@@ -93,6 +185,9 @@ var vm = new Vue({
         // 关闭弹层
         closeModal: function() {
             this.modalHide = true;
+        },
+        debug: function(data) {
+            this.debug += JSON.parse(data);
         },
         // 格式化数据
         render: function(data) {
@@ -146,85 +241,6 @@ var vm = new Vue({
     components: {
         'v-modal': Modal
     }
-});
-
-// 请求来了，添加至面板展示
-vm.$on('add-request', function(data) {
-    var item = [];
-    var seeds = data['data'];
-    
-    // 如果连接断开了，这时候页面刷新的请求是收不到的。只能将
-    if (!data['connect']) {
-        this.requests = [
-            {
-                "url": "https://github.com/aaronzjc",
-                "collection": [
-                    {
-                        "title": 'Oops, Your devtools connection to background has gone.Reopen console to continue . ',
-                        'type': 'exception',
-                        "table": []
-                    }
-                ]
-            }
-        ];
-        return false;
-    }
-
-    // 排序
-    seeds.sort(function(a, b) {
-        return (a.index > b.index) ? 1 : -1;
-    });
-
-    // 数据处理，将header片段拼接成完整的JSON段
-    var json = '';
-    for (var i in seeds) {
-        if (seeds[i]['isFrag']) {
-            json += seeds[i]['val'];
-        } else {
-            if (json != '') {
-                item.push(json);
-            }
-            json = seeds[i]['val'];
-        }
-    }
-    if (json != '') {
-        item.push(json);
-    }
-
-    var map = {
-        'url': data['url'],
-        'collection': []
-    };
-    for (var i in item) {
-        var formatData = this.render(item[i]);
-        if (formatData != false) {
-            map['collection'].push(formatData);
-        }
-    }
-    this.debug = this.debug + '请求处理完了';
-    if (map) {
-        this.debug = this.debug + '有数据';
-    }
-    this.$nextTick(function(){
-        this.requests.push(map);
-    });
-});
-
-vm.$on('tab-update',function(data) {
-    this.debug += 'tab 更新了';
-    this.requests = [];
-});
-vm.$on('request-debug',function(data) {
-    this.debug += JSON.stringify(data);
-});
-vm.$on('disconnect',function(){
-    this.requests = [
-        {
-            "title": 'Console Connect failed.Please reopen console to continue..',
-            'type': 'exception',
-            "table": []
-        }
-    ];
 });
 
 $(function() {

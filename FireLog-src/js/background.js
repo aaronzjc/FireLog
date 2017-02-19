@@ -44,7 +44,6 @@ chrome.runtime.onConnect.addListener(function (port) {
 	    		console.log('tab updated');
 	      		if (changeInfo.status == 'loading') {
 	        		port.postMessage({msg:'tabUpdate',tabId:tabId});
-	        		return true;
 	      		}
 	    	}
 	  	},
