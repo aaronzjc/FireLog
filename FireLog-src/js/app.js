@@ -94,7 +94,17 @@ var vm = new Vue({
         bus.$on('tab-update', this.tabUpdate);
         bus.$on('add-request', this.addRequest);
         bus.$on('disconnect', this.disconnect);
-        bus.$on('request-debug', this.debug);
+        bus.$on('request-debug', this.debugLog);
+
+        /*
+        bus.$emit({"url": "test", "headers": 
+[
+    {
+        "name":"X-Wf-1-1-1-1", 
+        "value": "107|[{\"Type\":\"TABLE\",\"File\":\"\",\"Line\":\"\"},[\"This Page Spend Times 0.073174\",[[\"Description\",\"Time\",\"Caller\"]]]]|\"", 
+    }
+], "connect": true
+});*/
     },
     methods: {
         // 清空
@@ -108,7 +118,7 @@ var vm = new Vue({
         },
         // 添加请求
         addRequest: function(data) {
-            // 如果连接断开了，这时候页面刷新的请求是收不到的。只能将
+            // 如果连接断开了，这时候页面刷新的请求是收不到的
             if (!data['connect']) {
                 this.requests = [
                     {
@@ -127,26 +137,29 @@ var vm = new Vue({
 
             var key = 'X-Wf-1-1-1-'; // 响应前缀
 
+
             // 整合过的完整JSON列表
             var item = [];
             var seeds = [];
+            this.debug += JSON.stringify(data);
             for (var i in data['headers']) {
                 var value = data['headers'][i];
-                var fragment = value['value'].substring(value['value'].indexOf('|') + 1, value['value'].lastIndexOf('|'));
-                var index = parseInt(value['name'].substring(key.length));
-                if (value['value'].indexOf('|') > 0) {
-                    var isFrag = false;
-                } else {
-                    var isFrag = true;
+                if (value['name'].indexOf(key) >= 0) {
+                    var fragment = value['value'].substring(value['value'].indexOf('|') + 1, value['value'].lastIndexOf('|'));
+                    var index = parseInt(value['name'].substring(key.length));
+                    if (value['value'].indexOf('|') > 0) {
+                        var isFrag = false;
+                    } else {
+                        var isFrag = true;
+                    }
+                    seeds.push({index:index, val:fragment, isFrag: isFrag});
                 }
-                seeds.push({index:index, val:fragment, isFrag: isFrag});
             }
 
             // 排序
             seeds.sort(function(a, b) {
                 return (a.index > b.index) ? 1 : -1;
             });
-
             // 数据处理，将header片段拼接成完整的JSON段
             var json = '';
             for (var i in seeds) {
@@ -162,19 +175,20 @@ var vm = new Vue({
             if (json != '') {
                 item.push(json);
             }
-
             var map = {
                 'url': data['url'],
                 'collection': []
             };
             for (var i in item) {
                 var formatData = this.render(item[i]);
+
                 if (formatData != false) {
                     map['collection'].push(formatData);
                 }
             }
             var _self = this;
             setTimeout(function() {
+
                 _self.requests.push(map);
             }, 200);
         },
@@ -196,8 +210,8 @@ var vm = new Vue({
         closeModal: function() {
             this.modalHide = true;
         },
-        debug: function(data) {
-            this.debug += JSON.parse(data);
+        debugLog: function(data) {
+            this.debug += JSON.stringify(data);
         },
         // 格式化数据
         render: function(data) {

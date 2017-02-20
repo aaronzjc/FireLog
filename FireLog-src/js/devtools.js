@@ -41,10 +41,9 @@ chrome.devtools.network.onRequestFinished.addListener(function(request){
   var responseHeaders = request.response.headers;
   
   // 对于存在firephp的响应才发送
-  var flag = false;
-  // PHPLog.bus.$emit('request-debug', {url: request.request.url, data:responseHeaders}); 
   for(var i in responseHeaders) {
     if (responseHeaders[i].name.indexOf('X-Wf-Protocol') >= 0) {
+      // PHPLog.bus.$emit('request-debug', {url: request.request.url, data:responseHeaders}); 
       PHPLog.bus.$emit('add-request', {url: request.request.url, headers: responseHeaders, connect: PHPLog.portState});
       return true;
     }

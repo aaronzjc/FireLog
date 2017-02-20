@@ -46,8 +46,6 @@ html,body {
 }
 .card{
   width: 95%;
-  min-height: 120px;
-  background: #f03;
   height: auto;
   margin:5px;
 }
