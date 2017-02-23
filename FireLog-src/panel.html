@@ -30,14 +30,14 @@
         </div>
       </div>
 
-      <v-modal :data="jsonHTML" :json="isJson" :show="modalHide"></v-modal>
+      <v-modal :data="jsonHTML" :is-json="isJson" :json="json" :show="modalHide"></v-modal>
     </div>
 
     <template id="modal">
       <div
       class="modal"
       :class="{'hide':show}">
-        <div class="header"><i @click="closeModal"></i></div>
+        <div class="header"><i @click.stop="closeModal" class="close"></i><i v-if="isJson" class="copy" @click.stop="copy"></i></div>
         <div class="body">
         </div>
       </div>

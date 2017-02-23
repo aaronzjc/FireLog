@@ -108,7 +108,7 @@ html,body {
   line-height: 20px;
   border:1px solid #ccc;
   min-width: 24px;
-  max-width: 300px;
+  max-width: 280px;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -180,5 +180,16 @@ div.detail:hover{
   margin-left: 5px;
   width: 20px;
   height: 20px;
+}
+.modal .header i:hover {
+  cursor: pointer;
+}
+
+i.close {
   background: url("../images/close.png") no-repeat;
+}
+i.copy {
+  position: absolute;
+  right: 5px;
+  background: url("../images/copy.png") no-repeat; 
 }

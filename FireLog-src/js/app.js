@@ -42,12 +42,17 @@ var ConsoleLog = {
                 if (table[i][j] !== null) {
                     table[i][j] = {
                         type: typeof(table[i][j]),
-                        val: table[i][j]
+                        val: table[i][j],
+                        omit: false
                     };
                     if (JSON.stringify(table[i][j]['val']).length > 200) {
                         table[i][j]['omit'] = true;
-                    } else {
-                        table[i][j]['omit'] = false;
+                    }
+                } else {
+                    table[i][j] = {
+                        type: "null",
+                        val: table[i][j],
+                        omit: false
                     }
                 }
             }
@@ -68,11 +73,38 @@ Vue components
 */
 var Modal = Vue.extend({
     template: '#modal',
-    props: ['data', 'show', 'json'],
+    props: ['data', 'show', 'isJson', 'json'],
+    data: function() {
+        return {
+            showTxt: false
+        }
+    },
+    created: function() {
+        this.showTxt = this.isJson;
+    },
+    watch: {
+        data: function(newVal, oldVal) {
+            if (newVal) {
+                document.querySelector(".modal .body").innerHTML = newVal;
+                if (this.isJson) {
+                    prettyJSON();
+                }
+            }
+        }
+    },
     methods: {
         closeModal: function() {
             bus.$emit('close-modal');
-        }
+        },
+        copy: function() {
+            this.showTxt = !this.showTxt;
+            if (this.showTxt) {
+                document.querySelector(".modal .body").innerHTML = JSON.stringify(this.json);
+            } else {
+                document.querySelector(".modal .body").innerHTML = this.data;
+                prettyJSON();
+            }
+        },
     }
 });
 
@@ -86,8 +118,10 @@ var vm = new Vue({
         jsonHTML: '',
         // 弹层的HTML内容
         isJson: false,
+        json:"",
         // 弹层展示的数据是否是JSON
-        modalHide: true, // 是否隐藏弹层
+        modalHide: false, // 是否隐藏弹层
+        showTxt: false,
     },
     created: function() {
         bus.$on('close-modal', this.closeModal);
@@ -119,6 +153,7 @@ var vm = new Vue({
         // 添加请求
         addRequest: function(data) {
             // 如果连接断开了，这时候页面刷新的请求是收不到的
+            /*
             if (!data['connect']) {
                 this.requests = [
                     {
@@ -134,6 +169,7 @@ var vm = new Vue({
                 ];
                 return false;
             }
+            */
 
             var key = 'X-Wf-1-1-1-'; // 响应前缀
 
@@ -141,18 +177,15 @@ var vm = new Vue({
             // 整合过的完整JSON列表
             var item = [];
             var seeds = [];
-            this.debug += JSON.stringify(data);
+            // this.debug += JSON.stringify(data);
+            console.log(data['headers']);
             for (var i in data['headers']) {
                 var value = data['headers'][i];
                 if (value['name'].indexOf(key) >= 0) {
                     var fragment = value['value'].substring(value['value'].indexOf('|') + 1, value['value'].lastIndexOf('|'));
                     var index = parseInt(value['name'].substring(key.length));
-                    if (value['value'].indexOf('|') > 0) {
-                        var isFrag = false;
-                    } else {
-                        var isFrag = true;
-                    }
-                    seeds.push({index:index, val:fragment, isFrag: isFrag});
+                    var isEnd = value['value'].trim().slice(-1) == "\\"?false:true;
+                    seeds.push({index:index, val:fragment, isEnd: isEnd});
                 }
             }
 
@@ -160,20 +193,15 @@ var vm = new Vue({
             seeds.sort(function(a, b) {
                 return (a.index > b.index) ? 1 : -1;
             });
+            console.log(seeds);
             // 数据处理，将header片段拼接成完整的JSON段
             var json = '';
             for (var i in seeds) {
-                if (seeds[i]['isFrag']) {
-                    json += seeds[i]['val'];
-                } else {
-                    if (json != '') {
-                        item.push(json);
-                    }
-                    json = seeds[i]['val'];
+                json += seeds[i]['val'];
+                if (seeds[i]['isEnd']) {
+                    item.push(json);
+                    json = '';
                 }
-            }
-            if (json != '') {
-                item.push(json);
             }
             var map = {
                 'url': data['url'],
@@ -181,11 +209,12 @@ var vm = new Vue({
             };
             for (var i in item) {
                 var formatData = this.render(item[i]);
-
+                console.log(formatData);
                 if (formatData != false) {
                     map['collection'].push(formatData);
                 }
             }
+            this.debug += JSON.stringify(map);
             var _self = this;
             setTimeout(function() {
 
@@ -246,14 +275,14 @@ var vm = new Vue({
             $(event.target).next("table").toggle();
         },
         // 查看日志详情
-        showDetail: function(data, event) {
+        showDetail: function(data) {
             // TODO: JSON beauty
             this.modalHide = false;
 
             var render = renderJSON(data);
             this.isJson = render.isJson;
-            document.querySelector(".modal .body").innerHTML = render.data;
-            prettyJSON();
+            this.json = data;
+            this.jsonHTML = render.data;
         },
     },
     components: {

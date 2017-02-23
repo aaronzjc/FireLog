@@ -37,12 +37,12 @@ chrome.runtime.onConnect.addListener(function (port) {
 		tabId: parseInt(port.name),
 		onMessage: function(msg) {
 			// 方便调试
-			cclog(msg.from, msg.msg);
+			cclog("request", msg);
 		},
 		tabUpdate: function(tabId, changeInfo, tab){
 	    	if (callbacks.tabId == tabId) {
-	    		console.log('tab updated');
 	      		if (changeInfo.status == 'loading') {
+	      			console.log('tab updated');
 	        		port.postMessage({msg:'tabUpdate',tabId:tabId});
 	      		}
 	    	}
@@ -54,7 +54,6 @@ chrome.runtime.onConnect.addListener(function (port) {
 					for (var i=0;i<details.requestHeaders.length;i++) {
 						if (details.requestHeaders[i].name.toLowerCase() == 'user-agent') {
 							if (details.requestHeaders[i].value.indexOf('FirePHP') < 0) {
-								console.log('add header');
 								details.requestHeaders[i].value += ' FirePHP/' + options.firePHPVersion;
 							}
 							break;
@@ -74,10 +73,10 @@ chrome.runtime.onConnect.addListener(function (port) {
 	};
 
 	port.onMessage.addListener(callbacks.onMessage);
+	// 添加FirePHP的请求头
+	chrome.webRequest.onBeforeSendHeaders.addListener(callbacks.beforeRequest,{urls: ["<all_urls>"]},["blocking", "requestHeaders"]);
   	// Tab更新
   	chrome.tabs.onUpdated.addListener(callbacks.tabUpdate);
-  	// 添加FirePHP的请求头
-	chrome.webRequest.onBeforeSendHeaders.addListener(callbacks.beforeRequest,{urls: ["<all_urls>"]},["blocking", "requestHeaders"]);
 	// 连接断了的时候
 	port.onDisconnect.addListener(callbacks.disconnect);
 });

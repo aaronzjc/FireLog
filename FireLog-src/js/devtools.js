@@ -44,6 +44,7 @@ chrome.devtools.network.onRequestFinished.addListener(function(request){
   for(var i in responseHeaders) {
     if (responseHeaders[i].name.indexOf('X-Wf-Protocol') >= 0) {
       // PHPLog.bus.$emit('request-debug', {url: request.request.url, data:responseHeaders}); 
+      port.postMessage({"msg": "emit request", "data": responseHeaders});
       PHPLog.bus.$emit('add-request', {url: request.request.url, headers: responseHeaders, connect: PHPLog.portState});
       return true;
     }
