@@ -120,7 +120,7 @@ var vm = new Vue({
         isJson: false,
         json:"",
         // 弹层展示的数据是否是JSON
-        modalHide: false, // 是否隐藏弹层
+        modalHide: true, // 是否隐藏弹层
         showTxt: false,
     },
     created: function() {
