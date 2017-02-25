@@ -159,7 +159,6 @@ var vm = new Vue({
         // 添加请求
         addRequest: function(data) {
             // 如果连接断开了，这时候页面刷新的请求是收不到的
-            /*
             if (!data['connect']) {
                 this.requests = [
                     {
@@ -175,7 +174,6 @@ var vm = new Vue({
                 ];
                 return false;
             }
-            */
 
             var key = 'X-Wf-1-1-1-'; // 响应前缀
 
