@@ -44,6 +44,16 @@ html,body {
   background: url("../images/refresh.png") no-repeat center center;
   background-size: 100% 100%;
 }
+.toolbar .tool.pause {
+  background: url("../images/pause.png") no-repeat center center;
+  background-size: 100% 100%;
+}
+.toolbar .tool.pause.on {
+  background: url("../images/pause-on.png") no-repeat center center;
+  background-size: 100% 100%;
+}
+
+
 .card{
   width: 95%;
   height: auto;

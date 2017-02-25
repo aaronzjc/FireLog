@@ -111,9 +111,9 @@ var Modal = Vue.extend({
 var vm = new Vue({
     el: '#app',
     data: {
-        background: null,
-        requests: [],
-        debug: '',
+        requests: [], // 请求
+        debug: '', // 调试日志
+        pause: false, // Tab刷新时是否阻止清空
 
         jsonHTML: '',
         // 弹层的HTML内容
@@ -148,7 +148,13 @@ var vm = new Vue({
         // 更新标签页
         tabUpdate: function() {
             this.debug += 'tab 更新了';
-            this.requests = [];
+            if (!this.pause) {
+                this.requests = [];
+            }
+        },
+        // 切换清空状态
+        switchPause: function() {
+            this.pause = !this.pause;
         },
         // 添加请求
         addRequest: function(data) {
