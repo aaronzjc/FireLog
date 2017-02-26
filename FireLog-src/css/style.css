@@ -91,7 +91,7 @@ html,body {
   box-sizing: border-box;
 }
 .group .list {
-  margin:10px 0px;
+  margin:7px 0px;
 }
 .group .list p {
   font-size: 13px;
@@ -112,8 +112,8 @@ html,body {
   border-collapse: collapse;
 }
 .group table td{
-  font-size: 11px;
-  padding:0px 2px;
+  font-size: 10px;
+  padding:1px 2px;
   height: 20px;
   line-height: 20px;
   border:1px solid #ccc;
@@ -122,6 +122,9 @@ html,body {
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+}
+.group table tr {
+  color: #464646;
 }
 .group table tr:hover{
   background: #dadada;

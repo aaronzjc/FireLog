@@ -37,15 +37,26 @@ chrome.devtools.panels.create("FireLog","FontPicker.png","panel.html", function 
 chrome.devtools.network.onRequestFinished.addListener(function(request){
   // alert('receive');
   var key = 'X-Wf-1-1-1-';
-  
+
   var responseHeaders = request.response.headers;
   
   // 对于存在firephp的响应才发送
   for(var i in responseHeaders) {
     if (responseHeaders[i].name.indexOf('X-Wf-Protocol') >= 0) {
       // PHPLog.bus.$emit('request-debug', {url: request.request.url, data:responseHeaders}); 
-      port.postMessage({"msg": "emit request", "data": responseHeaders});
-      PHPLog.bus.$emit('add-request', {url: request.request.url, headers: responseHeaders, connect: PHPLog.portState});
+      if (request.request.method == 'GET') {
+        var params = {
+          method: 'GET',
+          params: request.request.queryString?request.request.queryString:[]
+        }
+      } else if (request.request.method == 'POST'){
+        var params = {
+          method: 'POST',
+          params: request.request.postData.params?request.request.postData.params:[]
+        }
+      }
+      port.postMessage({"msg": "emit request", "data": request});
+      PHPLog.bus.$emit('add-request', {url: request.request.url, headers: responseHeaders, params: params, connect: PHPLog.portState});
       return true;
     }
   }
