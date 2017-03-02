@@ -27,9 +27,9 @@ function postMessage(from,msg) {
 // create panel
 chrome.devtools.panels.create("FireLog","icon/icon64.png","panel.html", function (panel) {
   PHPLog.panel = panel;
-  // postMessage('create-panel', panel);
+  postMessage('create-panel', panel);
   PHPLog.panel.onShown.addListener(function(panelWindow){
-    // postMessage('panel-shown', panelWindow);
+    postMessage('panel-shown', panelWindow);
     PHPLog.panelWindow = panelWindow;
     PHPLog.bus = panelWindow.bus;
   });
@@ -37,7 +37,7 @@ chrome.devtools.panels.create("FireLog","icon/icon64.png","panel.html", function
 
 // init response after request
 chrome.devtools.network.onRequestFinished.addListener(function(request){
-  // postMessage('receive-request', request);
+  postMessage('receive-request', request);
   var key = 'X-Wf-1-1-1-';
 
   var responseHeaders = request.response.headers;
@@ -57,7 +57,7 @@ chrome.devtools.network.onRequestFinished.addListener(function(request){
           params: request.request.postData.params?request.request.postData.params:[]
         }
       }
-      // port.postMessage({"msg": "emit request", "data": request});
+      port.postMessage({"msg": "emit request", "data": request});
       PHPLog.bus.$emit('add-request', {url: request.request.url, headers: responseHeaders, params: params, connect: PHPLog.portState});
       return true;
     }

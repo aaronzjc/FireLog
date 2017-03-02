@@ -33,17 +33,17 @@ chrome.storage.local.get('active', function(state) {
 
 // 初始化连接
 chrome.runtime.onConnect.addListener(function (port) {
-	// cclog('connect', port);
+	cclog('connect', port);
 	var callbacks = {
 		tabId: parseInt(port.name),
 		onMessage: function(msg) {
 			// 方便调试
-			// cclog("request", msg);
+			cclog("request", msg);
 		},
 		tabUpdate: function(tabId, changeInfo, tab){
 	    	if (callbacks.tabId == tabId) {
 	      		if (changeInfo.status == 'loading') {
-	      			// cclog('tab updated');
+	      			cclog('tab updated');
 	        		port.postMessage({msg:'tabUpdate',tabId:tabId});
 	      		}
 	    	}
